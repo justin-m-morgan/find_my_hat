@@ -1,4 +1,4 @@
-const { FIELD_CHARACTER, PATH_CHARACTER } = require("./constants")
+const { FIELD_CHARACTER, PATH_CHARACTER, HAT } = require("./constants")
 const { Coordinate } = require("./Coordinate")
 
 const defaultConfig = {
@@ -16,9 +16,13 @@ class Field {
             defaultConfig.startingLocation.row,
             defaultConfig.startingLocation.col
         )
+        this.hatLocation = generateCoordinateNotAtStartingLocation(this)
+        this.gameState = "IN_PROGRESS"
 
         // Initialize field
+
         placeCharacterAtStart(this, defaultConfig.startingLocation)
+        placeHat(this)
     }
     print() {
         this.field.forEach((row) => console.log(row.join(" ")))
@@ -43,9 +47,9 @@ function moveTo(field, moveTo, direction) {
     field.field[oldRow][oldCol] = direction
     field.field[newRow][newCol] = PATH_CHARACTER
     field.location = moveTo
-    // if (Coordinate.is_equal(field.location, field.hatLocation)) {
-    //     field.gameOver = true
-    // }
+    if (Coordinate.is_equal(field.location, field.hatLocation)) {
+        field.gameState = "GAME_WON"
+    }
 }
 function deltaCoords(field, delta) {
     const [dRow, dCol] = delta
@@ -88,9 +92,18 @@ function placeCharacterAtStart(
     field.field[row][col] = PATH_CHARACTER
 }
 
-function assignHat(field) {
-    const [hatRow, hatCol] = field.hatLocation
-    field._field[hatRow][hatCol] = hat
+function generateCoordinateNotAtStartingLocation(field) {
+    return Coordinate.randomNotAt(
+        [{ row: 0, col: 0 }],
+        0,
+        field.height - 1,
+        0,
+        field.width - 1
+    )
+}
+
+function placeHat(field) {
+    field.field[field.hatLocation.row][field.hatLocation.col] = HAT
 }
 
 function generateNestedArray(height, width, fillContent) {

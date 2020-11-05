@@ -1,5 +1,5 @@
-const fs = require("fs")
 const prompt = require("prompt-sync")({ sigint: true })
+
 const { Field } = require("./src/Field")
 
 let field = new Field({ height: 20, width: 20 })
@@ -22,6 +22,13 @@ function gameDisplay(field) {
     gamefooter()
 }
 
+function gameWonDisplay(field) {
+    console.log("===========")
+    console.log(field.gameState)
+    console.log("===========")
+    field.print()
+}
+
 function processInput(allowableCharacters, input) {
     if (input.length > 1) return ""
     if (allowableCharacters.includes(input)) return input
@@ -39,8 +46,12 @@ function processInput(allowableCharacters, input) {
         )
         const processedInput = processInput(["w", "s", "a", "d"], input)
         const result = field.acceptMoveCommand(processedInput)
-        if (field.gameOver) gameStillGoing = false
-        console.log(" ")
-        console.log(result)
+        if (field.gameState != "IN_PROGRESS") {
+            gameWonDisplay(field)
+            gameStillGoing = false
+        } else {
+            console.log(" ")
+            console.log(result)
+        }
     }
 }
